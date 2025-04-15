@@ -1,7 +1,7 @@
 import tensorflow as tf
 from Configs.config import cfg
 from Backbones import backbone 
-from tensorflow.keras import layers
+from tensorflow.keras import layers, Model
 from ROI.roi_pooling_layer import roi_pooling
 from Region_Proposals.region_proposal_network import RPN
 
@@ -25,7 +25,7 @@ class SOR(tf.keras.Model):
 		# Extracting feature map
 		feature_map = self.model_backbone(inputs)
 
-		img_size = tf.constant([224, 224], dtype=tf.float32)
+		img_size = tf.constant([224, 224], dtype = tf.int32)
 
 		# Getting region proposals
 		rois = self.rpn(feature_map, img_size)
@@ -37,6 +37,14 @@ class SOR(tf.keras.Model):
 
 
 
-inputs = tf.ones((8, 224, 224, 3)) 
-model = SOR(True)(inputs)
+inputs = tf.ones((1, 224, 224, 3), dtype = tf.float32) 
+output = SOR(False)(inputs)
+print(output.shape)
+
+
+inputs = layers.Input(shape = (224, 224, 3))
+outputs = SOR(False)(inputs)
+
+model = Model(inputs, outputs)
+
 model.summary()
